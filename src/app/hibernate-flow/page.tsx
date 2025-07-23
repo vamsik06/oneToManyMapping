@@ -457,7 +457,7 @@ export default function HibernateFlow() {
               <div className="flex flex-row min-h-0 items-stretch">
                 {/* KodnestStudent.java */}
                 <div className="flex-1 flex flex-col min-w-0 border-b md:border-b-0 md:border-r border-gray-700">
-                  <div className="bg-gray-800 text-yellow-300 text-xs font-semibold px-3 py-2 border-b border-gray-700">KodnestStudent.java</div>
+                  <div className="bg-gray-800 text-yellow-300 text-xs font-semibold px-3 py-2 border-b border-gray-700">Student.java</div>
                   <div className="overflow-auto bg-gray-900 text-white text-xs font-mono p-3 max-h-43">
                     <pre className="whitespace-pre-wrap">{studentJavaCode}</pre>
                   </div>
