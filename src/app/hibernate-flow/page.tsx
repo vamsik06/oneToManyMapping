@@ -20,54 +20,69 @@ interface Student {
 const studentJavaCode = `package com.kodnest.entity;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "kodneststudent")
 public class KodnestStudent {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(length = 50)
     private String name;
+
+    @Column(length = 50)
     private String email;
+
+    @Column(length = 15)
     private String phone;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id", referencedColumnName = "id")
-    private Address address;
+    // One student can have many courses
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Course> courses;
 
     // Getters and Setters
-    public int getId() {
-        return id;
+    public int getId() 
+    { 
+    return id; 
     }
-    public void setId(int id) {
-        this.id = id;
+    public void setId(int id) 
+    { 
+    this.id = id; 
     }
-    public String getName() {
-        return name;
+    public String getName() 
+    { 
+    return name;
+     }
+    public void setName(String name) 
+    { 
+    this.name = name; 
     }
-    public void setName(String name) {
-        this.name = name;
+    public String getEmail() 
+    { 
+    return email; 
     }
-    public String getEmail() {
-        return email;
+    public void setEmail(String email)
+   { 
+   this.email = email; 
+   }
+    public String getPhone() 
+    { 
+    return phone;
+     }
+    public void setPhone(String phone) 
+    { 
+    this.phone = phone; 
     }
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    public String getPhone() {
-        return phone;
-    }
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-    public Address getAddress() {
-        return address;
-    }
-    public void setAddress(Address address) {
-        this.address = address;
-    }
+    public List<Course> getCourses()
+     { 
+     return courses; 
+     }
+    public void setCourses(List<Course> courses)
+     { 
+     this.courses = courses;
+      }
 }`;
 
 // The Java code snippet for Address
@@ -155,6 +170,10 @@ export default function HibernateFlow() {
   const [objectsVisible, setObjectsVisible] = useState(true);
   // New: control fade-out after move down
   const [fadeObjects, setFadeObjects] = useState(false);
+  // Add a ref for Course Object 2's id
+  const course2IdRef = useRef<HTMLSpanElement>(null);
+  // New: control visibility after move down
+  const [greenArrowPos, setGreenArrowPos] = useState<{start: {x: number, y: number}, end: {x: number, y: number}} | null>(null);
 
   // Initial student data
   const initialStudent: Student = {
@@ -232,8 +251,26 @@ export default function HibernateFlow() {
           };
           setArrowPos({ start, end });
         }
+        // Green arrow: from student to course2IdRef
+        const course2IdEl = course2IdRef.current;
+        if (startEl && course2IdEl) {
+          const startRect = startEl.getBoundingClientRect();
+          const endRect = course2IdEl.getBoundingClientRect();
+          const end = {
+            x: endRect.left + endRect.width / 2,
+            y: endRect.top + endRect.height / 2,
+          };
+          const start = {
+            x: startRect.right - startRect.width / 4,
+            y: startRect.top + startRect.height / 2,
+          };
+          setGreenArrowPos({ start, end });
+        } else {
+          setGreenArrowPos(null);
+        }
       } else {
         setArrowPos(null);
+        setGreenArrowPos(null);
       }
     }
     updateArrow();
@@ -366,9 +403,9 @@ export default function HibernateFlow() {
   }, [darkMode]);
 
   return (
-    <div className={cn("min-h-screen p-8 flex flex-col items-center relative overflow-hidden transition-colors bg-gray-50 dark:bg-gray-900")}> 
+    <div className={cn("min-h-screen flex flex-col items-center relative overflow-hidden transition-colors bg-gray-50 dark:bg-gray-900")}> 
       {/* Main constraint wrapper */}
-      <div className={cn("relative w-full max-w-[800px] max-h-[800px] h-full overflow-auto flex flex-col items-center justify-center border-2 border-black dark:border-gray-700 rounded-xl p-4 mb-8", darkMode ? "bg-gray-900" : "bg-gray-50")}>
+      <div className={cn("relative w-full max-w-[800px] max-h-[800px] h-full overflow-auto flex flex-col items-center justify-center border-2 border-black dark:border-gray-700 rounded-xl mb-8", darkMode ? "bg-gray-900" : "bg-gray-50")}>
         {/* Heading Row with Buttons and Dark/Light Toggle */}
         <div className="w-full flex items-center justify-between mb-4">
           {/* Left: Start and Reset Buttons */}
@@ -418,16 +455,16 @@ export default function HibernateFlow() {
           <Card className="relative border-2 border-black dark:border-gray-700 bg-white dark:bg-gray-800 p-0 flex flex-col h-full max-h-full">
             <CardContent className="p-0">
               <div className="flex flex-row min-h-0 items-stretch">
-                {/* Student.java */}
+                {/* KodnestStudent.java */}
                 <div className="flex-1 flex flex-col min-w-0 border-b md:border-b-0 md:border-r border-gray-700">
-                  <div className="bg-gray-800 text-yellow-300 text-xs font-semibold px-3 py-2 border-b border-gray-700">Student.java</div>
+                  <div className="bg-gray-800 text-yellow-300 text-xs font-semibold px-3 py-2 border-b border-gray-700">KodnestStudent.java</div>
                   <div className="overflow-auto bg-gray-900 text-white text-xs font-mono p-3 max-h-43">
                     <pre className="whitespace-pre-wrap">{studentJavaCode}</pre>
                   </div>
                 </div>
-                {/* Address.java */}
+                {/* Course.java */}
                 <div className="flex-1 flex flex-col min-w-0">
-                  <div className="bg-gray-800 text-yellow-300 text-xs font-semibold px-3 py-2 border-b border-gray-700">Address.java</div>
+                  <div className="bg-gray-800 text-yellow-300 text-xs font-semibold px-3 py-2 border-b border-gray-700">Course.java</div>
                   <div className="overflow-auto bg-gray-900 text-white text-xs font-mono p-3 max-h-43">
                     <pre className="whitespace-pre-wrap">{addressJavaCode}</pre>
                   </div>
@@ -468,10 +505,10 @@ export default function HibernateFlow() {
                       className="absolute left-2.9 -translate-x-20 -translate-y-7 top-6 w-32 h-32 rounded-full bg-white dark:bg-gray-800 border-2 border-black dark:border-gray-700 flex flex-col items-start justify-center text-xs p-4 text-left shadow z-10 text-gray-900 dark:text-gray-100"
                     >
                       <span className="font-bold text-xs mb-1">Student Object</span>
-                      <span className="text-xs">Name: <span className="font-medium">Ravi Kumar</span></span>
-                      <span className="text-xs truncate">Email: <span className="font-medium">ravi.kumar@gm.....</span></span>
-                      <span className="text-xs">Phone: <span className="font-medium">9876543210</span></span>
-                      <span className="text-xs">address_id: <span ref={addressIdRef} className="font-medium">1</span></span>
+                      <span className="text-xs">Name: <span className="font-medium">Ravi...</span></span>
+                      <span className="text-xs truncate">Email: <span className="font-medium">ravi@gm.....</span></span>
+                      <span className="text-xs">Phone: <span className="font-medium">9876...</span></span>
+                      <span className="text-xs">student_id: <span ref={addressIdRef} className="font-medium">1</span></span>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -489,15 +526,36 @@ export default function HibernateFlow() {
                       }}
                       exit={{ opacity: 0, scale: 0.7 }}
                       transition={{ duration: 0.4, opacity: { duration: 0.5 } }}
-                      className="absolute right-4 -translate-x-2 -translate-y-30 top-40 w-35 h-35 rounded-full bg-orange-200 dark:bg-orange-900 border-2 border-black dark:border-gray-700 flex flex-col items-start justify-center text-xs p-4 text-left shadow-lg z-10 text-gray-900 dark:text-gray-100"
+                      className="absolute right-4 -translate-x-2 -translate-y-40 top-40 w-26 h-26 rounded-full bg-orange-200 dark:bg-orange-900 border-2 border-black dark:border-gray-700 flex flex-col items-start justify-center text-[10px] p-3 text-left z-10 text-gray-900 dark:text-gray-100"
                       ref={addressObjRef}
                     >
-                      <span className="font-bold text-xs mb-1">Address Object</span>
-                      <span className="text-xs">id: <span className="font-medium">1</span></span>
-                      <span className="text-xs">Street: <span className="font-medium">123 Kodnest...</span></span>
-                      <span className="text-xs">setCity: <span className="font-medium">Bengal...</span></span>
-                      <span className="text-xs">State: <span className="font-medium">Karn...</span></span>
-                      <span className="text-xs">Zipcode: <span className="font-medium">5600...</span></span>
+                      <span className="font-bold text-[10px] mb-1">Course 1</span>
+                      <span className="text-[10px]">C_ID: <span className="font-medium">101</span></span>
+                      <span className="text-[10px]">course_name: <span className="font-medium">Java</span></span>
+                      <span className="text-[10px]">student_id: <span className="font-medium">1</span></span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                {/* Course Object 2 */}
+                <AnimatePresence>
+                  {showAddressObj && objectsVisible && (
+                    <motion.div
+                      key="course-obj-2"
+                      initial={{ opacity: 0, scale: 0.7, y:20 }}
+                      animate={{
+                        opacity: fadeObjects ? 0 : 1,
+                        scale: moveObjectsDown ? 0.7 : 1,
+                        x: 0,
+                        y: moveObjectsDown ? 190 : 0
+                      }}
+                      exit={{ opacity: 0, scale: 0.7 }}
+                      transition={{ duration: 0.4, opacity: { duration: 0.5 } }}
+                      className="absolute right-16 -translate-x-2 -translate-y-15 top-40 w-27 h-27 text-2xl rounded-full bg-green-200 dark:bg-green-900 border-2 border-black dark:border-gray-700 flex flex-col items-start justify-center text-[11px] p-1 text-left z-10 text-gray-900 dark:text-gray-100"
+                    >
+                      <span className="font-bold text-[10px] mb-1">Course 2</span>
+                      <span className="text-[10px]">C_ID: <span ref={course2IdRef} className="font-medium">102</span></span>
+                      <span className="text-[10px]">course_name: <span className="font-medium">Spring</span></span>
+                      <span className="text-[10px]">student_id: <span className="font-medium">1</span></span>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -511,12 +569,15 @@ export default function HibernateFlow() {
                       <marker id="arrowhead2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto" markerUnits="strokeWidth">
                         <path d="M0,0 L8,4 L0,8 L2, Z" fill="#f59e42" />
                       </marker>
+                      <marker id="arrowhead3" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L8,4 L0,8 L2, Z" fill="#22c55e" />
+                      </marker>
                     </defs>
                     <motion.line
                       x1={arrowPos.start.x}
-                      y1={moveObjectsDown ? arrowPos.start.y + 220 : arrowPos.start.y}
+                      y1={moveObjectsDown ? arrowPos.start.y + 180 : arrowPos.start.y}
                       x2={arrowPos.end.x}
-                      y2={moveObjectsDown ? arrowPos.end.y + 220 : arrowPos.end.y}
+                      y2={moveObjectsDown ? arrowPos.end.y + 180 : arrowPos.end.y}
                       stroke="#f59e42"
                       strokeWidth="3"
                       markerEnd="url(#arrowhead2)"
@@ -527,6 +588,24 @@ export default function HibernateFlow() {
                       }}
                       transition={{ duration: 0.4, opacity: { duration: 0.5 } }}
                     />
+                    {/* Second arrow to Course Object 2 */}
+                    {greenArrowPos && objectsVisible && (
+                      <motion.line
+                        x1={greenArrowPos.start.x}
+                        y1={moveObjectsDown ? greenArrowPos.start.y + 110 : greenArrowPos.start.y}
+                        x2={greenArrowPos.end.x - 30}
+                        y2={moveObjectsDown ? greenArrowPos.end.y + 160 : greenArrowPos.end.y}
+                        stroke="#22c55e"
+                        strokeWidth="3"
+                        markerEnd="url(#arrowhead3)"
+                        animate={{
+                          opacity: fadeObjects ? 0 : 1,
+                          y1: moveObjectsDown ? greenArrowPos.start.y + 220 : greenArrowPos.start.y,
+                          y2: moveObjectsDown ? greenArrowPos.end.y + 160 : greenArrowPos.end.y,
+                        }}
+                        transition={{ duration: 0.4, opacity: { duration: 0.5 } }}
+                      />
+                    )}
                   </svg>
                 )}
               </div>
@@ -593,7 +672,7 @@ export default function HibernateFlow() {
                         <th ref={el => { studentHeaderRefs.current[1] = el; }} className="px-2 py-1 border-r">NAME</th>
                         <th ref={el => { studentHeaderRefs.current[2] = el; }} className="px-2 py-1 border-r">EMAIL</th>
                         <th ref={el => { studentHeaderRefs.current[3] = el; }} className="px-2 py-1 border-r">PHONE</th>
-                        <th ref={el => { studentHeaderRefs.current[4] = el; }} className="px-2 py-1">ADDRESS_ID</th>
+                        <th ref={el => { studentHeaderRefs.current[4] = el; }} className="px-2 py-1">Student_ID</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -615,28 +694,31 @@ export default function HibernateFlow() {
             <div className="flex-1">
               <Card className="border-2 border-black dark:border-gray-700 relative  bg-white dark:bg-gray-800 h-full max-h-full">
           <CardHeader>
-                  <CardTitle className="text-center text-base text-gray-800 dark:text-gray-100">Address Table</CardTitle>
+                  <CardTitle className="text-center text-base text-gray-800 dark:text-gray-100">Course Table</CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto">
                   <table className="w-full text-xs text-left text-gray-800 dark:text-gray-100">
                 <thead className="text-[10px] text-gray-700 dark:text-gray-200 uppercase bg-gray-50 dark:bg-gray-700">
                 <tr>
-                        <th ref={el => { addressHeaderRefs.current[0] = el; }} className="px-2 py-1 border-r">ID</th>
-                        <th ref={el => { addressHeaderRefs.current[1] = el; }} className="px-2 py-1 border-r">STREET</th>
-                        <th ref={el => { addressHeaderRefs.current[2] = el; }} className="px-2 py-1 border-r">CITY</th>
-                        <th ref={el => { addressHeaderRefs.current[3] = el; }} className="px-2 py-1 border-r">STATE</th>
-                        <th ref={el => { addressHeaderRefs.current[4] = el; }} className="px-2 py-1">ZIPCODE</th>
+                        <th ref={el => { addressHeaderRefs.current[0] = el; }} className="px-2 py-1 border-r">C_ID</th>
+                        <th ref={el => { addressHeaderRefs.current[1] = el; }} className="px-2 py-1 border-r">COURSE NAME</th>
+                        <th ref={el => { addressHeaderRefs.current[2] = el; }} className="px-2 py-1">STUDENT_ID</th>
                 </tr>
               </thead>
               <tbody>
                       {step >= 5 ? (
-                        <tr>
-                          <td className="px-2 py-1">1</td>
-                          <td className="px-2 py-1">123 Kodnest...</td>
-                          <td className="px-2 py-1">Bengal...</td>
-                          <td className="px-2 py-1">Karn...</td>
-                          <td className="px-2 py-1">5600...</td>
-                    </tr>
+                        <>
+                          <tr>
+                            <td className="px-2 py-1">101</td>
+                            <td className="px-2 py-1">Java</td>
+                            <td className="px-2 py-1">1</td>
+                          </tr>
+                          <tr>
+                            <td className="px-2 py-1">102</td>
+                            <td className="px-2 py-1">Spring</td>
+                            <td className="px-2 py-1">1</td>
+                          </tr>
+                        </>
                       ) : null}
               </tbody>
             </table>
